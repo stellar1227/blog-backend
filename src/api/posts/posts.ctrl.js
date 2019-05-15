@@ -51,4 +51,84 @@ exports.read = (ctx) => {
         };
         return ;
     }
+    ctx.body = post;
+}
+
+/**
+ * 특정 포스트 제거
+ * DELETE /api/posts/:id
+ */
+exports.remove = (ctx) => {
+    const { id } = ctx.params;
+    //해당 id를 가진 post가 몇 번째인지 확인합니다.
+    const index = posts.findIndex(p => p.id.toString() === id);
+
+    //포스트 없으면 오류 반환
+    if(index === -1){
+        ctx.status = 404;
+        ctx.body = {
+            message : '포스트가 존재하지 않습니다.'
+        };
+        return ;
+    }
+    // index 번째 아이템을 제거
+    posts.splice(index, 1);
+    ctx.status = 204; //No content
+}
+
+/**
+ * 포스트 수정 (교체)
+ * PUT /api/posts/:id
+ * { title, body }
+ */
+exports.replace = (ctx) => {
+    // Put 메서드는 전체 포스트 정보를 입력하여 데이터를 통째로 교체할 때 사용
+    const { id } = ctx.params;
+
+    // 해당 id 가진 post 몇번째인지 확인
+    const index = posts.findIndex(p => p.id.toString() === id);
+
+    //포스트 없으면 오류 반환
+    if(index === -1){
+        ctx.status = 404;
+        ctx.body = {
+            message : '포스트가 존재하지 않습니다.'
+        };
+        return ;
+    }
+    // 전체 객체 덮어씌우기 id제외한 기존 정보날리고 새로 객체 생성
+    posts[index] = {
+        id,
+        ...ctx.request.body
+    };
+    ctx.body = posts[index];
+}
+
+/**
+ *  포스트 수정 (특정 필드 변경)
+ *  PATCH /api/posts/:id
+ *  { title, body }
+ */
+exports.update = (ctx) => {
+    //PATCH 메서드는 주어진 필드만 교체 
+    const { id } = ctx.params;
+
+    //해당 id를 가진 post가 몇 번째인지 확인
+    const index = posts.findIndex(p => p.id.toString() === id);
+
+    //포스트가 없으면 오류를 반환
+    if(index === -1){
+        ctx.status = 404;
+        ctx.body = {
+            message : '포스트가 존재하지 않습니다.'
+        };
+        return ;
+    }
+
+    //기존 값에 정보를 덮어씌웁니다.
+    posts[index] = {
+        ...posts[index],
+        ...ctx.reques.body
+    };
+    ctx.body = posts[index];
 }
