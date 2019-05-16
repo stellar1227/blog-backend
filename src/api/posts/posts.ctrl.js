@@ -39,7 +39,7 @@ exports.list = (ctx) => {
  */
 exports.read = (ctx) => {
     const { id } = ctx.params;
-    // 주어진 id 값으로 포스트를 찾습니다.
+    // 주어진 id 값으로 포스트를 찾음
     // 파라미터로 받아 온 값은 문자열 형식이니 파라미터를 숫자로 변환 또는 비교할 p.id 값을 문자열로 변경 
     const post = posts.find(p => p.id.toString() === id);
 
@@ -128,7 +128,7 @@ exports.update = (ctx) => {
     //기존 값에 정보를 덮어씌웁니다.
     posts[index] = {
         ...posts[index],
-        ...ctx.reques.body
+        ...ctx.request.body
     };
     ctx.body = posts[index];
 }
