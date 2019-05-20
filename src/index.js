@@ -1,6 +1,6 @@
 require('dotenv').config();
-
 const mongoose = require('mongoose');
+
 const {
     PORT : port = 4000, // 기본포트 4000 
     MONGO_URI : mongoURI
@@ -12,7 +12,6 @@ mongoose.connect(mongoURI).then(()=>{
 }).catch((e) => {
     console.error(e);
 });
-
 
 
 const Koa = require('koa'); //미들웨어의 배열로 구성되어있음
