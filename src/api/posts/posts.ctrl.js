@@ -51,9 +51,29 @@ exports.write = async (ctx) => {
 
 /** GET /api/posts */
 exports.list = async (ctx) => {
+    //page가 주어지지 않았다면 1로 간주
+    //query는 문자열 형태로 받아오므로 숫자로 변환 
+    const page = parseInt(ctx.query.page || 1, 10);
+    
+    //잘못된 페이지가 주어졌을 경우
+    if(page < 1){
+        ctx.status = 400;
+        return;
+    }
+
     try{
-        const posts = await Post.find().exec(); //exec를 붙여 줘야 서버에 쿼리 요청 
-        ctx.body = posts;
+        const posts = await Post.find().sort({_id : -1}).limit(10).skip((page - 1) * 10).lean().exec(); 
+        //exec를 붙여 줘야 서버에 쿼리 요청 , sort구문을 넣으면 정렬가능 (-1은 내림차순 1이면 오름차순), limit은 제한, skip은 첫 개수 제외하고 불러옴, lean은 반환 형식이 JSON임
+        
+        const postCount = await Post.count().exec(); 
+        
+        const limitBodyLength = post => ({
+            ...post,
+            body : post.body.length < 200 ? post.body : `${post.body.slice(0,200)}...`
+        });        
+        ctx.body = posts.map(limitBodyLength);
+        //마지막 페이지 알려주기, ctx.set은 response header를 설정
+        ctx.set('Last-Page', Math.ceil(postCount / 10 ));
     } catch(e){
         ctx.throw(e, 500)
     }
